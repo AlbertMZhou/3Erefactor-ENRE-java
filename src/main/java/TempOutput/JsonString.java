@@ -374,13 +374,13 @@ public class JsonString {
         List<String> variableFiles=new ArrayList<>();
         List<JSONObject> subObjVariable=new ArrayList<JSONObject>();
         //ja需要的类型的实体。
-        List<String> JAEntityTypes=List.of("Variable","Class","Method","Interface","Enum");
+        List<String> JAEntityTypes=List.of("Variable","Class","Method","Interface","Enum","Annotation","Annotation Member");
         List<Integer> JAEntityList=new ArrayList<>();
         //实体的详情信息：
         while(iterator.hasNext()) {
             BaseEntity entity = iterator.next();
             String type=singleCollect.getEntityType(entity.getId());
-            //排除掉不需要实体类型
+            //排除掉不需要实体类型Package,TypeParameter(奇怪的是enre输出的实体列表中也没有TypeParameter类实体，统计中却有)
             if(!JAEntityTypes.contains(type)){
                 continue;
             }
@@ -405,6 +405,10 @@ public class JsonString {
                 type="FuncImpl";
                 entityObj.put("type","FuncImpl");
                 entityObj.put("methodIsAbstract",false);
+            }else if(type.equals("Annotation")){
+                entityObj.put("type","Type");
+            }else if(type.equals("Annotation Member")){
+                entityObj.put("type","FuncProto");
             }
             //put会覆盖原有属性，accumulate会在对应属性累计增加
             if (entity.getRawType() != null){
@@ -436,6 +440,10 @@ public class JsonString {
             String entityFile;
             entityFile = ((FileEntity) singleCollect.getEntityById(getCurrentFileId(entity.getId()))).getFullPath();
             entityObj.put("file", entityFile);
+            int srcFileIndex=variableFiles.indexOf(entityFile);
+            if(srcFileIndex<0){
+                variableFiles.add(entityFile);
+            }
 //            variableFiles.add(entityFile);
             //当实体为文件类型时，会变成从src开始以‘/’连接的路径
             if(entity instanceof FileEntity) object=entityFile;
@@ -569,7 +577,7 @@ public class JsonString {
         for (int i=0;i<allCells.length();i++){
             JSONObject jsonObject=allCells.getJSONObject(i);
             String cellkind=jsonObject.getString("type");
-            if(!JACellTypes.contains(cellkind))continue;
+//            if(!JACellTypes.contains(cellkind))continue;
 //            if(cellkind.equals("Parameter")){
             //查找Parameter、usevar、依赖A的to的id出现在其他Typed的依赖B的from属性，
             //有出现则把A的to改为B的to
