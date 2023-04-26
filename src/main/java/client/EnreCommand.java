@@ -31,7 +31,8 @@ public class EnreCommand {
     private String external;
     @Option(names = {"-s", "--slim"}, description = "The slim output version, which removing the location and external entity info. ")
     private boolean slim;
-
+    @Option(names = {"-j", "--jArcher"}, description = "The jArcher output version. ")
+    private boolean jArcher;
     public EnreCommand() {
     }
     public String getLang() {
@@ -100,5 +101,11 @@ public class EnreCommand {
     public String getExternal() {
         return external;
     }
+    public boolean isjArcher() {
+        return jArcher;
+    }
 
+    public void setjArcher(boolean jArcher) {
+        this.jArcher = jArcher;
+    }
 }

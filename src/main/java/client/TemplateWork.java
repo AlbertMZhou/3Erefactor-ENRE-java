@@ -13,6 +13,7 @@ import hianalyzer.HiDeper;
 import util.Configure;
 import writer.WriterIntf;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.alibaba.fastjson.JSON;
@@ -44,6 +45,11 @@ public class TemplateWork {
                 CommandLine.usage(new EnreCommand(), System.out);
                 System.exit(0);
             }
+            if(app.isjArcher()){
+                System.out.println("this output is in jArcher version");
+            }else {
+                System.out.println("this output is in ENRE version");
+            }
             executeCommand(app);
         } catch (Exception e) {
             if (e instanceof CommandLine.PicocliException) {
@@ -62,6 +68,9 @@ public class TemplateWork {
     public void executeCommand(EnreCommand app) throws Exception {
         String lang = app.getLang();
         String inputDir = app.getSrc();
+        if(app.isjArcher()){
+            inputDir=inputDir+"/src/main";//只分析main路径下
+        }
         String projectName = app.getProjectName();
         String depMask = "111111111";
         String aidlDir = app.getAidl();
@@ -140,8 +149,20 @@ public class TemplateWork {
         //CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-Diango-out",configure.getAnalyzedProjectName()+ "-edge", Django.edgeWriter(jsonMap.getFinalRes()));
         //specific-anti-
         // CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",outputFile, JsonString.JSONWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
-        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName() + "-enre-out", outputFile, JsonString.jsonWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
-//        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-hidden-not-match", ProcessHidden.getProcessHiddeninstance().outputResult());
+        if(!app.isjArcher()){
+            System.out.println("enre output");
+            //输出，创建json文件，参数包括filePath输出文件路径名（文件夹，项目名称-enre-out）；fileName输出文件名称（分析项目名-out.json），jsonString输出内容。
+            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",outputFile, JsonString.jsonWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
+            //JsonString.JSONWriteRelation()负责编写json字符串内容
+            //jsonMap.getFinalRes()获取实体列表和依赖列表（依赖列表作为实体的属性） hiddenDir：hiddenapi-flag.csv文件路径, slim：是否精简输出
+        }else {
+            System.out.println("ja output");
+            //判断是否为相对路径，进行绝对路径转换
+            File file= new File(inputDir);
+            String rootDir=file.getCanonicalPath();
+//            System.out.println(file.exists()+":"+file.getCanonicalPath());
+            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-ja-out",outputFile, JsonString.JSONWriteRelationJA(jsonMap.getFinalRes(), rootDir, configure.getAnalyzedProjectName(),configure.getLang()));
+        }//        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-hidden-not-match", ProcessHidden.getProcessHiddeninstance().outputResult());
 
         //CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-Diango-out",configure.getAnalyzedProjectName()+ "-imports", Verification.JSONWriteRela(verify.getRela()));
 //        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-generic-anti-out",
