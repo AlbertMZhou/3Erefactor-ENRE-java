@@ -1,6 +1,7 @@
 package client;
 
 import TempOutput.*;
+import org.json.JSONArray;
 import picocli.CommandLine;
 import visitor.relationInf.RelationInf;
 import formator.Formator;
@@ -15,6 +16,7 @@ import writer.WriterIntf;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 
@@ -109,7 +111,7 @@ public class TemplateWork {
                 entityTreeBuilder = new IdentifyEntities(inputDir, projectName);
             }
         }
-        entityTreeBuilder.run();
+        List<String> variables=entityTreeBuilder.run();
 
         // identify external
         if (externalPath != null){
@@ -161,7 +163,7 @@ public class TemplateWork {
             File file= new File(inputDir);
             String rootDir=file.getCanonicalPath();
 //            System.out.println(file.exists()+":"+file.getCanonicalPath());
-            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-ja-out",outputFile, JsonString.JSONWriteRelationJA(jsonMap.getFinalRes(), rootDir, configure.getAnalyzedProjectName(),configure.getLang()));
+            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-ja-out",outputFile, JsonString.JSONWriteRelationJA(jsonMap.getFinalRes(), rootDir, configure.getAnalyzedProjectName(),configure.getLang(),variables));
         }//        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-hidden-not-match", ProcessHidden.getProcessHiddeninstance().outputResult());
 
         //CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-Diango-out",configure.getAnalyzedProjectName()+ "-imports", Verification.JSONWriteRela(verify.getRela()));

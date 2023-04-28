@@ -358,7 +358,7 @@ public class JsonString {
         return rawType;
     }
     //与JArcher适配的json格式输出
-    public static String JSONWriteRelationJA(Map<Integer, ArrayList<Tuple<Integer, Relation>>> relationMap,String rootDir,String projectName,String lang) throws Exception {
+    public static String JSONWriteRelationJA(Map<Integer, ArrayList<Tuple<Integer, Relation>>> relationMap,String rootDir,String projectName,String lang,List<String> variables) throws Exception {
 
         JSONObject obj=new JSONObject(new HashMap<>());//创建JSONObject对象
         //singleCollect包含所有实体和依赖信息，processHidden在hidden模式下才执行
@@ -371,7 +371,7 @@ public class JsonString {
         //获取实体列表,iterator迭代器不暴露集合内部实现的情况下遍历集合元素的方法
         Iterator<BaseEntity> iterator = singleCollect.getEntities().iterator();
         //存放实体文件
-        List<String> variableFiles=new ArrayList<>();
+        List<String> variableFiles=variables;
         List<JSONObject> subObjVariable=new ArrayList<JSONObject>();
         //ja需要的类型的实体。
         List<String> JAEntityTypes=List.of("Variable","Class","Method","Interface","Enum","Annotation","Annotation Member");
@@ -440,10 +440,10 @@ public class JsonString {
             String entityFile;
             entityFile = ((FileEntity) singleCollect.getEntityById(getCurrentFileId(entity.getId()))).getFullPath();
             entityObj.put("file", entityFile);
-            int srcFileIndex=variableFiles.indexOf(entityFile);
-            if(srcFileIndex<0){
-                variableFiles.add(entityFile);
-            }
+//            int srcFileIndex=variableFiles.indexOf(entityFile);
+//            if(srcFileIndex<0){
+//                variableFiles.add(entityFile);
+//            }
 //            variableFiles.add(entityFile);
             //当实体为文件类型时，会变成从src开始以‘/’连接的路径
             if(entity instanceof FileEntity) object=entityFile;

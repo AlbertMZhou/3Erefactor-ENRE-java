@@ -6,16 +6,15 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import util.CompilationUnitPair;
 import util.FileUtil;
 import util.PathUtil;
 import util.Tuple;
 import visitor.EntityVisitor;
 
-import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class IdentifyEntities {
 
@@ -68,7 +67,7 @@ public class IdentifyEntities {
         return additional_path;
     }
 
-    public void run(){
+    public List<String> run(){
 
         FileUtil current;
         if(this.getAidl_path() != null){
@@ -144,11 +143,13 @@ public class IdentifyEntities {
 
 
         System.out.println("Parsing...");
-
+        List<String> variables=new ArrayList<>();
         for(CompilationUnitPair pair : pairs){
 
             try{
-                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
+                String s=PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name);
+                System.out.println(s);
+                variables.add(s);
 //                if("src/main/java/helloJDT/LauncherAccessibilityDelegate.java".equals(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name))){
 //                    pair.ast.accept(new EntityVisitor(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name), pair.ast));
 //                }
@@ -173,7 +174,7 @@ public class IdentifyEntities {
         }
 
         System.out.println("Entities identified successfully...");
-
+        return variables;
     }
 
 }
