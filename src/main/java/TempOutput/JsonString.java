@@ -465,7 +465,11 @@ public class JsonString {
             if (!(entity instanceof FileEntity || entity instanceof PackageEntity)){
                 JSONObject locObj = new JSONObject();
                 locObj.put("line", entity.getLocation().getStartLine());
+                locObj.put("startLine",entity.getLocation().getStartLine());
+                locObj.put("endLine",entity.getLocation().getEndLine());
                 locObj.put("row", entity.getLocation().getStartColumn());
+                locObj.put("startColumn",entity.getLocation().getStartColumn());
+                locObj.put("endColumn",entity.getLocation().getEndColumn());
                 entityObj.accumulate("location", locObj);
                 //ja只用line row，
             }else if(entity instanceof FileEntity){
@@ -555,11 +559,11 @@ public class JsonString {
                 JSONObject detailObj=new JSONObject();//details列表元素
 //                detailObj.put("from",fromEntity);
                 detailObj.put("fromFile",srcFileIndex);
-                detailObj.put("fromName",singleCollect.getEntityById(fromEntity).getQualifiedName());
+//                detailObj.put("fromName",singleCollect.getEntityById(fromEntity).getQualifiedName());
                 detailObj.put("from",JAEntityList.indexOf(fromEntity));
 //                detailObj.put("to",toEntity);
                 detailObj.put("toFile",destFileIndex);
-                detailObj.put("toName",singleCollect.getEntityById(toEntity).getQualifiedName());
+//                detailObj.put("toName",singleCollect.getEntityById(toEntity).getQualifiedName());
                 detailObj.put("to",JAEntityList.indexOf(toEntity));
                 String cellkind=relation.getKind();
                 if (cellkind.equals("Inherit"))cellkind="Extend";//在ja中叫做extend
@@ -567,7 +571,11 @@ public class JsonString {
                 //位置信息
                 JSONObject locObj = new JSONObject();
                 locObj.put("line", relation.getLocation().getStartLine());
+                locObj.put("startLine",relation.getLocation().getStartLine());
+                locObj.put("endLine",relation.getLocation().getEndLine());
                 locObj.put("row", relation.getLocation().getStartColumn());
+                locObj.put("startColumn",relation.getLocation().getStartColumn());
+                locObj.put("endColumn",relation.getLocation().getEndColumn());
                 detailObj.put("location", locObj);
                 allCells.put(detailObj);
             }
@@ -577,14 +585,14 @@ public class JsonString {
         for (int i=0;i<allCells.length();i++){
             JSONObject jsonObject=allCells.getJSONObject(i);
             String cellkind=jsonObject.getString("type");
-//            if(!JACellTypes.contains(cellkind))continue;
+            if(!JACellTypes.contains(cellkind))continue;
 //            if(cellkind.equals("Parameter")){
             //查找Parameter、usevar、依赖A的to的id出现在其他Typed的依赖B的from属性，
             //有出现则把A的to改为B的to
             for (int j=0;j<allCells.length();j++){
                 if(allCells.getJSONObject(j).getString("type").equals("Typed")){
                     if(jsonObject.getInt("to")==allCells.getJSONObject(j).getInt("from")){
-                        jsonObject.put("toName",allCells.getJSONObject(j).getString("toName"));
+//                        jsonObject.put("toName",allCells.getJSONObject(j).getString("toName"));
                         jsonObject.put("to",allCells.getJSONObject(j).getInt("to"));
                     }
                 }
@@ -607,9 +615,9 @@ public class JsonString {
                 }
             }
             JSONObject detailObj = new JSONObject();
-            detailObj.put("fromName",jsonObject.getString("fromName"));
+//            detailObj.put("fromName",jsonObject.getString("fromName"));
             detailObj.put("from",jsonObject.getInt("from"));
-            detailObj.put("toName",jsonObject.getString("toName"));
+//            detailObj.put("toName",jsonObject.getString("toName"));
             detailObj.put("to",jsonObject.getInt("to"));
             detailObj.put("type",jsonObject.getString("type"));
             detailObj.put("location", jsonObject.getJSONObject("location"));
