@@ -157,7 +157,7 @@ public class IdentifyEntities {
             try{
 //              honor
                 if (pair.source.contains("tests/")) continue;
-                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
+//                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
 //                System.out.println(PathUtil.unifyPath(pair.source));
 
                 String s=PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name);
