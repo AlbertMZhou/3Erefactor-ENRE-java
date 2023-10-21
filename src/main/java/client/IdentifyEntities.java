@@ -12,8 +12,16 @@ import util.CompilationUnitPair;
 import util.FileUtil;
 import util.PathUtil;
 import util.Tuple;
+import util.*;
 import visitor.EntityVisitor;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.*;
 
 public class IdentifyEntities {
@@ -147,6 +155,11 @@ public class IdentifyEntities {
         for(CompilationUnitPair pair : pairs){
 
             try{
+//              honor
+                if (pair.source.contains("tests/")) continue;
+                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
+//                System.out.println(PathUtil.unifyPath(pair.source));
+
                 String s=PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name);
                 System.out.println(s);
                 variables.add(s);
@@ -174,7 +187,7 @@ public class IdentifyEntities {
         }
 
         System.out.println("Entities identified successfully...");
-        return variables;
+
     }
 
 }

@@ -211,6 +211,7 @@ public class EnreFormatParser {
       Integer anonymousRank = (Integer) get(variableObj, "anonymousRank");
       String modifiers = (String) get(variableObj, "modifiers");
       Boolean global = (Boolean) get(variableObj, "global");
+      String hidden = (String) get(variableObj, "hidden");
       AdditionalBinDTO additionalBinDTO = parseAdditionalBinDTO(variableObj);
       LocationDTO locationDTO = parseLocationDTO(variableObj, "location");
       ICCMethodAttributeDTO iccMethodAttributeDTO = parseICCMethodAttributeDTO(variableObj);
@@ -238,6 +239,7 @@ public class EnreFormatParser {
                     locationDTO,
                     modifiers,
                     file,
+                    hidden,
                     componentDTO,
                     additionalBinDTO,
                     innerType);
@@ -252,6 +254,7 @@ public class EnreFormatParser {
                     locationDTO,
                     modifiers,
                     file,
+                    hidden,
                     componentDTO,
                     additionalBinDTO,
                     anonymousBindVar,
@@ -269,11 +272,12 @@ public class EnreFormatParser {
                   additionalBinDTO,
                   locationDTO,
                   modifiers,
+                  hidden,
                   rawType);
           break;
         case "Enum Constant":
           res =
-              new EnumConstantEntityDTO(id, name, qualifiedName, parentId, file, additionalBinDTO);
+              new EnumConstantEntityDTO(id, name, qualifiedName, parentId, file, hidden, additionalBinDTO);
           break;
         case "Annotation":
           res =
@@ -286,6 +290,7 @@ public class EnreFormatParser {
                   additionalBinDTO,
                   locationDTO,
                   modifiers,
+                  hidden,
                   rawType);
           break;
         case "Annotation Member":
@@ -304,6 +309,7 @@ public class EnreFormatParser {
                   additionalBinDTO,
                   locationDTO,
                   modifiers,
+                  hidden,
                   rawType);
           break;
         case "Method":
@@ -320,6 +326,7 @@ public class EnreFormatParser {
                   modifiers,
                   parameterDTO,
                   rawType,
+                  hidden,
                   iccMethodAttributeDTO);
           break;
         case "Module":
@@ -346,6 +353,7 @@ public class EnreFormatParser {
                   locationDTO,
                   modifiers,
                   rawType,
+                  hidden,
                   iccVariableAttributeDTO);
           break;
         default:
@@ -387,19 +395,45 @@ public class EnreFormatParser {
   public static EnreDTO parse(JSONObject obj) {
     EnreDTO enre = new EnreDTO();
     enre.setSchemaVersion((String) obj.get("schemaVersion"));
-    for (Object cell : (JSONArray) obj.get("cells")) {
-      enre.getCells().add(parseCellDTO((JSONObject) cell));
+    if (obj.has("cells")) {
+      Object cellsObj = obj.get("cells");
+      if (cellsObj instanceof JSONObject) {
+        enre.getCells().add(parseCellDTO((JSONObject) cellsObj));
+      } else if (cellsObj instanceof JSONArray) {
+        for (Object cell : (JSONArray) obj.get("cells")) {
+          enre.getCells().add(parseCellDTO((JSONObject) cell));
+        }
+      } else {
+        throw new RuntimeException("unknown object type for cells: " + cellsObj.getClass().getName());
+      }
     }
     int maxIndex = 0;
-    for (Object variable : (JSONArray) obj.get("variables")) {
-      EntityDTO entity = parseEntityDTO((JSONObject) variable);
-      if (entity.getId() > maxIndex) {
-        maxIndex = entity.getId();
+    if (obj.has("variables")) {
+      Object variableObj = obj.get("variables");
+      if (variableObj instanceof JSONObject) {
+        EntityDTO entity = parseEntityDTO((JSONObject) variableObj);
+        if (entity.getId() > maxIndex) {
+          maxIndex = entity.getId();
+        }
+        enre.getVariables().add(entity);
+      } else if (variableObj instanceof JSONArray) {
+        for (Object variable : (JSONArray) obj.get("variables")) {
+          EntityDTO entity = parseEntityDTO((JSONObject) variable);
+          if (entity.getId() > maxIndex) {
+            maxIndex = entity.getId();
+          }
+          enre.getVariables().add(entity);
+        }
+      } else {
+        throw new RuntimeException("unknown object type for variables: " + variableObj.getClass().getName());
       }
-      enre.getVariables().add(entity);
     }
-    enre.setEntityNum(parseMap(obj, "entityNum"));
-    enre.setRelationNum(parseMap(obj, "relationNum"));
+    if (obj.has("entityNum")) {
+      enre.setEntityNum(parseMap(obj, "entityNum"));
+    }
+    if (obj.has("relationNum")) {
+      enre.setRelationNum(parseMap(obj, "relationNum"));
+    }
     enre.setCategories(parseCategories(obj));
     return enre;
   }

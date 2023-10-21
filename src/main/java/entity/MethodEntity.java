@@ -16,6 +16,16 @@ public class MethodEntity extends ScopeEntity{
     protected String returnType = null;
     protected String returnExpression = null;
     protected boolean isConstructor = false;
+    protected boolean isGenerics = false;
+    protected boolean isLambda = false;
+
+    public boolean isLambda() {
+        return isLambda;
+    }
+
+    public void setLambda(boolean lambda) {
+        isLambda = lambda;
+    }
 
     //record the id of blocks in method
     protected ArrayList<Block> blocks = new ArrayList<>();
@@ -24,9 +34,10 @@ public class MethodEntity extends ScopeEntity{
     protected ArrayList<VariableEntity> localVars = new ArrayList<>();
 
     //record var information
-    protected HashMap<String, Integer> name2Id = new HashMap<>();
+//    protected HashMap<String, Integer> name2Id = new HashMap<>();
     protected HashMap<String, String> name2Role = new HashMap<>();
-    protected HashMap<String, ArrayList<Tuple<String, Location>>> name2Usage = new HashMap<>();
+    
+    protected HashMap<Integer, ArrayList<Tuple<String, Location>>> id2Usage = new HashMap<>();
 
     protected Index indices;
     public MethodEntity(int methodId, String methodName){
@@ -45,7 +56,8 @@ public class MethodEntity extends ScopeEntity{
 //                    return var.getId();
 //                }
 //            }
-            if(var.getName().equals(varName) && isCurrentVarCover(var.getBlockId(), localBlockId)){
+//            if(var.getName().equals(varName) && isCurrentVarCover(var.getBlockId(), localBlockId)){
+            if(var.getName().equals(varName)){
                 return var.getId();
             }
         }
@@ -60,10 +72,7 @@ public class MethodEntity extends ScopeEntity{
         if(currentBlockId == inputBlockId){
             return true;
         }
-        if(this.getBlocks().get(currentBlockId).getDepth() < this.getBlocks().get(inputBlockId).getDepth()){
-            return true;
-        }
-        return false;
+        return this.getBlocks().get(currentBlockId).getDepth() < this.getBlocks().get(inputBlockId).getDepth();
     }
 
     public ArrayList<Integer> getParameters() {
@@ -110,6 +119,13 @@ public class MethodEntity extends ScopeEntity{
         return isConstructor;
     }
 
+    public void setGenerics(boolean isGenerics){
+        this.isGenerics = isGenerics;
+    }
+
+    public boolean isGenerics() {
+        return isGenerics;
+    }
 
     public void addBlock (Block block){
         this.blocks.add(block);
@@ -127,15 +143,15 @@ public class MethodEntity extends ScopeEntity{
         return this.localVars;
     }
 
-    public HashMap<String, Integer> getName2Id(){
-        return this.name2Id;
-    }
+//    public HashMap<String, Integer> getName2Id(){
+//        return this.name2Id;
+//    }
 
-    public void addName2Id(String name, int id){
-        if(!this.name2Id.containsKey(name)){
-            this.name2Id.put(name, id);
-        }
-    }
+//    public void addName2Id(String name, int id){
+//        if(!this.name2Id.containsKey(name)){
+//            this.name2Id.put(name, id);
+//        }
+//    }
 
     public HashMap<String, String> getName2Role(){ return this.name2Role; }
 
@@ -145,15 +161,15 @@ public class MethodEntity extends ScopeEntity{
         }
     }
 
-    public HashMap<String, ArrayList<Tuple<String, Location>>> getName2Usage() {
-        return name2Usage;
+    public HashMap<Integer, ArrayList<Tuple<String, Location>>> getId2Usage() {
+        return id2Usage;
     }
 
-    public void addName2Usage(String name, String usage, Location loc){
-        if (!name2Usage.containsKey(name)) {
-            name2Usage.put(name, new ArrayList<>());
+    public void addId2Usage(int id, String usage, Location loc){
+        if (!id2Usage.containsKey(id)) {
+            id2Usage.put(id, new ArrayList<>());
         }
-        name2Usage.get(name).add(new Tuple<>(usage, loc));
+        id2Usage.get(id).add(new Tuple<>(usage, loc));
     }
 
     public void setIndices(Index indices){

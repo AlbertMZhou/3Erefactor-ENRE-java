@@ -4,6 +4,7 @@ import util.Configure;
 import util.PathUtil;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ExternalEntity{
 

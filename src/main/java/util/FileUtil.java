@@ -45,9 +45,9 @@ public class FileUtil {
                 String aidl2Java = searchAidl(PathUtil.getPathInProject(PathUtil.unifyPath(project.getAbsolutePath()), this.projectName));
                 if (aidl2Java != null){
                     this.fileNameList.add(aidl2Java);
-//                    System.out.println("AIDL");
-//                    System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(project.getAbsolutePath()), this.projectName));
-//                    System.out.println(aidl2Java);
+                    System.out.println("AIDL");
+                    System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(project.getAbsolutePath()), this.projectName));
+                    System.out.println(aidl2Java);
                 }
             }
             return;
@@ -62,9 +62,9 @@ public class FileUtil {
                         String aidl2Java = searchAidl(PathUtil.getPathInProject(PathUtil.unifyPath(eachFile.getAbsolutePath()), this.projectName));
                         if (aidl2Java != null){
                             this.fileNameList.add(aidl2Java);
-//                            System.out.println("AIDL");
-//                            System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(eachFile.getAbsolutePath()), this.projectName));
-//                            System.out.println(aidl2Java);
+                            System.out.println("AIDL");
+                            System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(eachFile.getAbsolutePath()), this.projectName));
+                            System.out.println(aidl2Java);
                         }
                     }
                 }
@@ -115,6 +115,8 @@ public class FileUtil {
     }
 
     public String searchAidl(String aidl){
+        String[] aidlName = aidl.split("/");
+        aidl = aidlName[aidlName.length-1];
         for(String aidlJava: this.aidlList){
             if(aidlJava.contains(aidl.replace("aidl", "java"))){
                 return aidlJava;

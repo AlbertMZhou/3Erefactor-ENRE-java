@@ -1,7 +1,9 @@
 package util;
 
 import entity.*;
+import visitor.EntityVisitor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,6 +36,17 @@ public class SingleCollect {
     private HashMap<String, Integer> ckIndices = new HashMap<>();
 
     private static SingleCollect singleCollectInstance = new SingleCollect();
+
+    public void clear() {
+        this.entities.clear();
+        this.externalEntities.clear();
+        this.createdPackage.clear();
+        this.createdType.clear();
+        this.createdAnt.clear();
+        this.thirdPartyAPIs.clear();
+        this.fileIds.clear();
+        this.ckIndices.clear();
+    }
 
     public ArrayList<BaseEntity> getEntities() {
         return this.entities;
@@ -136,6 +149,14 @@ public class SingleCollect {
             return false;
         }
         return singleCollectInstance.getEntityById(id) instanceof FileEntity;
+    }
+
+    public boolean isRecord(int id) {
+        return false;
+    }
+
+    public boolean isModule(int id) {
+        return false;
     }
 
     public boolean isClass (int id){
