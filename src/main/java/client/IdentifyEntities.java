@@ -187,7 +187,7 @@ public class IdentifyEntities {
         }
 
         System.out.println("Entities identified successfully...");
-
+        return variables;
     }
 
 }
