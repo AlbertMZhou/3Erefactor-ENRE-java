@@ -7,7 +7,6 @@ public class EnumConstantEntityDTO extends InternalEntityDTO {
   private String File;
   private String hidden;
   private AdditionalBinDTO additionalBin;
-  private LocationDTO location;
 
   public EnumConstantEntityDTO() {
   }
@@ -30,21 +29,6 @@ public class EnumConstantEntityDTO extends InternalEntityDTO {
     this.File = file;
     this.hidden = hidden;
     this.additionalBin = additionalBin;
-  }
-
-  public EnumConstantEntityDTO(int id,
-                               String name,
-                               String qualifiedName,
-                               int parentId,
-                               String file,
-                               String hidden,
-                               AdditionalBinDTO additionalBin,
-                               LocationDTO location) {
-    super(id, name, qualifiedName, parentId, "Enum Constant");
-    this.File = file;
-    this.hidden = hidden;
-    this.additionalBin = additionalBin;
-    this.location = location;
   }
 
   public EnumConstantEntityDTO(
@@ -82,13 +66,5 @@ public class EnumConstantEntityDTO extends InternalEntityDTO {
 
   public void setHidden(String hidden) {
     this.hidden = hidden;
-  }
-
-  public LocationDTO getLocation() {
-    return location;
-  }
-
-  public void setLocation(LocationDTO location) {
-    this.location = location;
   }
 }
