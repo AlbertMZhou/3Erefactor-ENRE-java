@@ -6,12 +6,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import util.CompilationUnitPair;
-import util.FileUtil;
-import util.PathUtil;
-import util.Tuple;
 import util.*;
 import visitor.EntityVisitor;
 
@@ -22,7 +16,6 @@ import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.*;
 
 public class IdentifyEntities {
 
@@ -75,7 +68,7 @@ public class IdentifyEntities {
         return additional_path;
     }
 
-    public List<String> run(){
+    public void run(){
 
         FileUtil current;
         if(this.getAidl_path() != null){
@@ -151,18 +144,15 @@ public class IdentifyEntities {
 
 
         System.out.println("Parsing...");
-        List<String> variables=new ArrayList<>();
+
         for(CompilationUnitPair pair : pairs){
 
             try{
 //              honor
                 if (pair.source.contains("tests/")) continue;
-//                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
+                System.out.println(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name));
 //                System.out.println(PathUtil.unifyPath(pair.source));
 
-                String s=PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name);
-                System.out.println(s);
-                variables.add(s);
 //                if("src/main/java/helloJDT/LauncherAccessibilityDelegate.java".equals(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name))){
 //                    pair.ast.accept(new EntityVisitor(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name), pair.ast));
 //                }
@@ -174,6 +164,7 @@ public class IdentifyEntities {
                     }
                 }
                 pair.ast.accept(new EntityVisitor(PathUtil.getPathInProject(PathUtil.unifyPath(pair.source),this.project_name), pair.ast, fileBin));
+//                pair.ast.accept(new EntityVisitor(PathUtil.unifyPath(pair.source), pair.ast, fileBin));
 //                System.out.println(fileBinNum);
             }
             catch (EmptyStackException e){
@@ -187,7 +178,7 @@ public class IdentifyEntities {
         }
 
         System.out.println("Entities identified successfully...");
-        return variables;
+
     }
 
 }

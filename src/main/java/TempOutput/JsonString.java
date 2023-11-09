@@ -357,7 +357,7 @@ public class JsonString {
 //        }
         return rawType;
     }
-    //与JArcher适配的json格式输出
+    //与refactor适配的json格式输出
     public static String JSONWriteRelationJA(Map<Integer, ArrayList<Tuple<Integer, Relation>>> relationMap,String rootDir,String projectName,String lang,List<String> variables) throws Exception {
 
         JSONObject obj=new JSONObject(new HashMap<>());//创建JSONObject对象

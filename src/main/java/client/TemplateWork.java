@@ -4,6 +4,8 @@ import TempOutput.*;
 import org.json.JSONArray;
 import entity.properties.Relation;
 import picocli.CommandLine;
+import util.FileUtil;
+import util.PathUtil;
 import util.Tuple;
 import visitor.relationInf.RelationInf;
 
@@ -43,11 +45,14 @@ public class TemplateWork {
                 System.exit(0);
             }
             if(app.isjArcher()){
-                System.out.println("this output is in jArcher version");
+                System.out.println("this output is in 3E-refactor version");
+                //execute command for refactor tool
+                executeCommandRe(app);
             }else {
-                System.out.println("this output is in ENRE version");
+                System.out.println("this output is in ENRE-java version");
+                executeCommand(app);
             }
-            executeCommand(app);
+
         } catch (Exception e) {
             if (e instanceof CommandLine.PicocliException) {
                 CommandLine.usage(new EnreCommand(), System.out);
@@ -113,9 +118,6 @@ public class TemplateWork {
     public void executeCommand(EnreCommand app) throws Exception {
         String lang = app.getLang();
         String inputDir = app.getSrc();
-        if(app.isjArcher()){
-            inputDir=inputDir+"/src/main";//只分析main路径下
-        }
         String projectName = app.getProjectName();
         String depMask = "111111111";
         String aidlDir = app.getAidl();
@@ -154,7 +156,7 @@ public class TemplateWork {
                 entityTreeBuilder = new IdentifyEntities(inputDir, projectName);
             }
         }
-        List<String> variables=entityTreeBuilder.run();
+        entityTreeBuilder.run();
 
         // identify external
         if (externalPath != null){
@@ -194,20 +196,8 @@ public class TemplateWork {
         //CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-Diango-out",configure.getAnalyzedProjectName()+ "-edge", Django.edgeWriter(jsonMap.getFinalRes()));
         //specific-anti-
         // CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",outputFile, JsonString.JSONWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
-        if(!app.isjArcher()){
-            System.out.println("enre output");
-            //输出，创建json文件，参数包括filePath输出文件路径名（文件夹，项目名称-enre-out）；fileName输出文件名称（分析项目名-out.json），jsonString输出内容。
-            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",outputFile, JsonString.jsonWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
-            //JsonString.JSONWriteRelation()负责编写json字符串内容
-            //jsonMap.getFinalRes()获取实体列表和依赖列表（依赖列表作为实体的属性） hiddenDir：hiddenapi-flag.csv文件路径, slim：是否精简输出
-        }else {
-            System.out.println("ja output");
-            //判断是否为相对路径，进行绝对路径转换
-            File file= new File(inputDir);
-            String rootDir=file.getCanonicalPath();
-//            System.out.println(file.exists()+":"+file.getCanonicalPath());
-            CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-ja-out",outputFile, JsonString.JSONWriteRelationJA(jsonMap.getFinalRes(), rootDir, configure.getAnalyzedProjectName(),configure.getLang(),variables));
-        }//        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-hidden-not-match", ProcessHidden.getProcessHiddeninstance().outputResult());
+        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName() + "-enre-out", outputFile, JsonString.jsonWriteRelation(jsonMap.getFinalRes(), hiddenDir, slim));
+//        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-hidden-not-match", ProcessHidden.getProcessHiddeninstance().outputResult());
 
         //CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-Diango-out",configure.getAnalyzedProjectName()+ "-imports", Verification.JSONWriteRela(verify.getRela()));
 //        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-enre-out",configure.getAnalyzedProjectName()+ "-generic-anti-out",
@@ -216,7 +206,83 @@ public class TemplateWork {
         //output the summary of the acquired results.
         summary();
     }
+    public void executeCommandRe(EnreCommand app) throws Exception {
+        String lang = app.getLang();
+        String inputDir = app.getSrc();
+        inputDir=inputDir+"\\src\\main";//只分析main路径下文件
+        String projectName = app.getProjectName();
+        String depMask = "111111111";
+        String aidlDir = app.getAidl();
+        String hiddenDir = app.getHidden();
 
+        String[] additionDir = app.getDir();
+
+        //Get the external
+        String externalPath = app.getExternal();
+
+        //Slim version
+        boolean slim = app.isSlim();
+
+        config(lang, inputDir, projectName);
+        String outputFile = configure.getAnalyzedProjectName()+ "-out";
+        if (app.getOutputFile() != null){
+            outputFile = app.getOutputFile();
+        }
+
+        String[] depTypes = getDepType(depMask);
+
+        long startTime = System.currentTimeMillis();
+
+        //identify Entities
+        IdentifyEntities entityTreeBuilder;
+        if(aidlDir != null){
+            if (additionDir.length != 0){
+                entityTreeBuilder = new IdentifyEntities(inputDir, projectName, aidlDir, additionDir);
+            } else {
+                entityTreeBuilder = new IdentifyEntities(inputDir, projectName, aidlDir);
+            }
+        }else {
+            if (additionDir.length != 0){
+                entityTreeBuilder = new IdentifyEntities(inputDir, projectName, additionDir);
+            } else {
+                entityTreeBuilder = new IdentifyEntities(inputDir, projectName);
+            }
+        }
+        entityTreeBuilder.run();
+
+        // identify external
+        if (externalPath != null){
+            ProcessThirdPartyMeth thirdPartyMeth = new ProcessThirdPartyMeth(externalPath, "sheet1");
+            thirdPartyMeth.convertExcelData();
+        }
+
+        //extract Deps
+        IdentifyRelations entityDepAnalyzer = new IdentifyRelations();
+        entityDepAnalyzer.run();
+
+        //get file list
+        FileUtil fileUtil=new FileUtil(inputDir);
+        List<String> variables=new ArrayList<>();
+        fileUtil.getFileNameList().forEach(file->{
+            file= PathUtil.getPathInProject(PathUtil.unifyPath(file),projectName);
+            System.out.println(file);
+            variables.add(file);
+        });
+        System.out.println("files number:"+variables.size());
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("\nConsumed time: " + (float) ((endTime - startTime) / 1000.00) + " s,  or " + (float) ((endTime - startTime) / 60000.00) + " min.\n");
+
+        JsonMap jsonMap = new JsonMap();
+        Verification verify = new Verification();
+        DependsString depends = new DependsString();
+        System.out.println("ja output");
+        //判断是否为相对路径，进行绝对路径转换
+        File file= new File(inputDir);
+        String rootDir=file.getCanonicalPath();
+        CreateFileUtil.createJsonFile(configure.getAnalyzedProjectName()+ "-ja-out",outputFile, JsonString.JSONWriteRelationJA(jsonMap.getFinalRes(), rootDir, configure.getAnalyzedProjectName(),configure.getLang(),variables));
+        summary();
+    }
     /**
      * parse the input parameter, save into configure
      *

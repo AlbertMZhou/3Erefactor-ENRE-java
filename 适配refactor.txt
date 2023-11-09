@@ -1,0 +1,2 @@
+java -jar enre-java-refactor.jar java "projectRoot" "projectName" -j
+java -jar enre-java-refactor.jar java D:/ZJH/git/3Erefactor-service-test/depends depends -j
