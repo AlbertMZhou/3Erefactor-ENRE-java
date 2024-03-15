@@ -12,6 +12,7 @@ import visitor.relationInf.RelationInf;
 import util.Configure;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class TemplateWork {
 
     }
 
-    public Map<Integer, ArrayList<Tuple<Integer, Relation>>> execute(EnreCommand app) {
+    public Map<Integer, ArrayList<Tuple<Integer, Relation>>> execute(EnreCommand app) throws IOException {
         config("java", app.getSrc(), app.getProjectName());
         IdentifyEntities entityTreeBuilder;
         if (app.getAidl() != null) {
