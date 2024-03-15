@@ -102,3 +102,45 @@ $java -jar enre_java.jar java ...\frameworks\base base -a <aidl-path>
 # in windows platform
 $java -jar enre_java.jar java ...\frameworks\base base -d ...\base
 ```
+
+## Testing
+
+### Prerequisite
+
+* Node.js 16~18
+
+### Steps
+
+ENRE-java is integrated with [ENRE-test](https://github.com/xjtu-enre/enre-test). All you need to do for performing unit test is running the following script:
+
+1. Fetch the latest enre-java-test codebase locally:
+
+```sh
+python3 ./scripts/update_submodule.py
+```
+
+2. Generate test cases and suites:
+
+```sh
+python3 ./scripts/gen_tests.py
+```
+Test cases and `JUnit` java files will be generated under directory `src/test/resources/cases` and `src/test/java/client`.
+
+you can execute all `JUnit` test cases by executing the following command in the project directory:
+
+```sh
+mvn clean test
+```
+
+or execute specific test case by passing class name:
+
+```sh
+mvn clean test -DTest=AClassDefinesAFieldTest
+```
+
+If you want to build the package without executing any test case:
+
+```sh
+mvn clean package assembly:single -DskipTests
+```
+
